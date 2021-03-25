@@ -13,7 +13,7 @@ def  Create_path(path, info):
     return firemask, path_rgb, path_res
 
 def range_0_255(a, band):
-    b = a.ravel()
+    b = a.ravel()# из b создает одномерный массив
 #    print(b.shape)
     h = np.histogram(b,1000, range = (0, b.max()))
     

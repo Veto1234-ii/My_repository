@@ -195,9 +195,10 @@ def Сalculation_E_diff_compare_coordinates(GT_coord, Test_coord):
 
 
 
-def compare_coordinates_lists_2(GT_coord, Test_coord, E_diff):
+def compare_coordinates_lists_km(GT_coord, Test_coord, E_diff):
     
-    Gr3 = []    
+    Gr3 = [] 
+    arr_diff = []
     for i in range(len(GT_coord)):
         arr = []
         for j in range(len(Test_coord)):
@@ -207,11 +208,47 @@ def compare_coordinates_lists_2(GT_coord, Test_coord, E_diff):
             
         arr_sort = sorted(arr, key = lambda x: x[0])
 
-        
+        arr_diff.append(arr_sort[0][0])
         if arr_sort[0][0] <= E_diff:
             Gr3.append((GT_coord[i][0], GT_coord[i][1], GT_coord[i][2]))
         
+    r = sorted(arr_diff)
+    # print(r)
+    print()        
+    print(r[0], 'min diff in km')
+    print()
+    
+    return Gr3
 
+def compare_coordinates_lists_degrees(GT_coord, Test_coord, E_diff):
+    
+    Gr3 = [] 
+    arr_diff = []
+    
+    for i in range(len(GT_coord)):
+        arr = []
+        for j in range(len(Test_coord)):
+            
+            diff_lat = abs(GT_coord[i][0] - Test_coord[j][0])
+            diff_lon = abs(GT_coord[i][1] - Test_coord[j][1])
+            
+            diff = (diff_lat**2 + diff_lon**2)**0.5
+            
+            arr.append((diff, Test_coord[j][0], Test_coord[j][1]))
+            
+        arr_sort = sorted(arr, key = lambda x: x[0])
+        # print(arr_sort, 'arr_sort')
+        arr_diff.append(arr_sort[0][0])
+        
+        
+        if arr_sort[0][0] <= E_diff:
+            Gr3.append((GT_coord[i][0], GT_coord[i][1]))
+            
+    r = sorted(arr_diff)
+    # print(r)
+    print()        
+    print(r[0], 'min diff in degrees')
+    print()
     return Gr3
 
 def Grouping_points_confident(arr, g1, g2):

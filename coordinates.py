@@ -1,6 +1,48 @@
 import numpy as np
 from utilities import getMTL
+import rasterio
+import pyproj
 
+def Coordinates_gdal(folder, info):
+    
+    localname = folder+ '/LC08_L1TP_'+info+'_01_T1_B6.TIF'
+    folder_firemask = folder + '\fire_mask_'+info+'.npy'
+    
+    firemask = np.load(folder_firemask)
+
+    with rasterio.open(localname, mode='r') as src:
+        p = pyproj.Proj(src.crs)
+        
+        height = src.height
+        width  = src.width
+        
+        lonarr = []
+        latarr = []
+        
+        for i in range(height):
+            for j in range(width):
+                
+                if (i == height//2) and (j == width//2):
+                    x_center, y_center = src.xy(i, j)
+                    lon_center, lat_center = p(x_center, y_center, inverse=True) 
+                    
+                if firemask[i][j]!=0:
+                    x, y = src.xy(i, j)
+                    lon, lat = p(x,y,inverse=True) 
+                    
+                    latarr.append(lat)
+                    lonarr.append(lon)
+                        
+                
+                    
+        
+        lonarr=np.array(lonarr)
+        latarr=np.array(latarr)
+        
+        np.save(folder+'\latarr_gdal_'+info, latarr)
+        np.save(folder+'\lonarr_gdal_'+info, lonarr)         
+        print('coords done')
+        
 def index_corners(b):
     shape = b.shape
     mask = np.zeros(shape)

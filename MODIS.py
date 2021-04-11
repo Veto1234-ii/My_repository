@@ -15,7 +15,7 @@ def barycentric(p1, p2, p3, Vec2i_P):
     return (u[0] > 0) and (u[1] > 0) and (u[2] > 0) 
 
 
-def check_point_modis(mtl, modis_lat_lon):
+def check_point(mtl, modis_lat_lon):
     data = getMTL(mtl)
     
     UL_LAT = float(data['CORNER_UL_LAT_PRODUCT'])
@@ -124,7 +124,7 @@ def MaskToCoord(arr, H, V, info, folder, mtl):
                 
                 modis_lat_lon = (lat, lon)
                 
-                if check_point_modis(mtl, modis_lat_lon) == True:
+                if check_point(mtl, modis_lat_lon) == True:
                     
                     lat_arr.append(lat)
                     lon_arr.append(lon) 
@@ -237,7 +237,7 @@ mtl = path_landsat_coor + '\LC08_L1TP_'+info_Ld+ '_01_T1_MTL.txt'
 
 print('Data Landsat', Date_Landsat)
 print()
-Landsat_MODIS(path_landsat_coor, info_MOD, info_Ld, E_diff_km, E_diff_degrees, mtl)
+# Landsat_MODIS(path_landsat_coor, info_MOD, info_Ld, E_diff_km, E_diff_degrees, mtl)
 
 # MODIS_save_coordinates(path_modis, path_landsat_coor, Date_Landsat, info_MOD, mtl)
 # numpy_to_txt(folder, 'MOD14A1_' + info_MOD)

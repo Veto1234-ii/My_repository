@@ -4,23 +4,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from utilities import getMTL
 from coordinates import index_corners
-
+from open_sort_csv import FIRMS_coordinates
 
 def Reading_data(path_res, X, mtl):
     
     firms       = np.load(path_res + r'/Firms_'+X+'.npy')
-    print(firms)
+    # print(firms)
     result      = np.load(path_res + r'/Algrorithm_'+X+'.npy')
-    print(result)
+    # print(result)
     points_math = np.load(path_res + r'/Points_match_'+X+'.npy')
-    print(points_math)
-
+    # print(points_math)
+    
+    
     b1 = np.load(path_res  + r'\Landsat_'+X+'_B1.npy')
+    print(np.max(b1), np.min(b1))
     print(b1.shape, 'Shape')
     data = getMTL(mtl)
     
-    return firms, result, points_math, b1, data  
+    return firms, result, points_math, b1, data
  
+Reading_data(r'D:\MODIS\script\result\Article_coordinates','105069_20140805_20170420', r'D:\MODIS\script\result\Article_coordinates' + '\LC08_L1TP_'+'105069_20140805_20170420'+ '_01_T1_MTL.txt')
+    
 
 def Offsets_Coord_p(b1, data):
     
@@ -76,7 +80,12 @@ def Create_mask(path_res, X, mtl):
     b1          = r[3]
     data        = r[4]  
     
+    
     shape = b1.shape
+    
+    mask_data = np.zeros(shape,dtype = np.uint8)
+    np.putmask(mask_data, b1 != np.min(b1), 1)
+    
     m = np.zeros(shape,dtype = np.uint8)
     
     f = Offsets_Coord_p(b1, data)
@@ -91,16 +100,18 @@ def Create_mask(path_res, X, mtl):
         
         y,x = FromCoordTo_xy(Max_lat, Min_lon, p_lat, p_lon, y_offset, x_offset, lat, lon)
         
-        m[y-44:y+45, x-44:x+45] = 1
-        m[y-24:y+25, x-24:x+25] = 4
         
+        m[y-44:y+45, x-44:x+45] = 1#выдал алгоритм
+        m[y-24:y+25, x-24:x+25] = 4#выдал алгоритм
+    kol_firms = 0    
     for i in range(firms.shape[0]):
         lat = firms[i][0]
         lon = firms[i][1]
         
         y,x = FromCoordTo_xy(Max_lat, Min_lon, p_lat, p_lon, y_offset, x_offset, lat, lon)
-        
-        m[y-44:y+45, x-44:x+45] = 2
+        if np.sum(mask_data[y-44:y+45, x-44:x+45]) + 250 >= 88*88 + 50:
+            m[y-44:y+45, x-44:x+45] = 2# то что у фирмс
+            kol_firms +=1
         
     for i in range(points_math.shape[0]):
         lat = points_math[i][0]
@@ -108,14 +119,17 @@ def Create_mask(path_res, X, mtl):
         
         y,x = FromCoordTo_xy(Max_lat, Min_lon, p_lat, p_lon, y_offset, x_offset, lat, lon)
         
-        m[y-44:y+45, x-44:x+45] = 3    
+        m[y-44:y+45, x-44:x+45] = 3# что совпало
         
-    return m
+    return m, kol_firms
 
 def Coord_To_Points_rgb(path_res, X, mtl):
     
-    m = Create_mask(path_res, X, mtl)    
+    res       = Create_mask(path_res, X, mtl)   
+    m         = res[0]
+    kol_firms = res[1]
     
+    print(kol_firms, 'FIRMS')
 #    np.save(path_res + r'\mask_comparison'+X, m)
     plt.imshow(m)
     plt.show() 
@@ -128,9 +142,32 @@ def Coord_To_Points_rgb(path_res, X, mtl):
     
     st[:,:,2] = np.where(m == 4, 255, st[:,:,2]) #blue
         
-    st[:,:,0] = np.where(m == 2, 255, st[:,:,0]) #red
+    st[:,:,0] = np.where(m == 2, 255, st[:,:,0]) #red  то что у фирмс
     
-    st[:,:,2] = np.where(m == 3, 255, st[:,:,2]) #blue
+    st[:,:,2] = np.where(m == 3, 255, st[:,:,2]) #blue # что совпало
 
     
     imageio.imwrite(path_res + r'\mask_comparison'+X+'.jpg', st)
+
+path_res = r'D:\MODIS\script\result\Article_coordinates'
+X_arr = ['105069_20140805_20170420']
+FIRMS = r'\fire_archive_M6_13348.csv'
+
+for i in range(len(X_arr)):
+    
+    print()
+    print(X_arr[i])
+    print()
+    mtl = path_res + '\LC08_L1TP_'+X_arr[i]+ '_01_T1_MTL.txt'
+    
+    GT   = FIRMS_coordinates(path_res, path_res + FIRMS, mtl, X_arr[i])
+    np.save(path_res + r'/Firms_'+X_arr[i], GT)
+    
+    
+
+    Coord_To_Points_rgb(path_res, X_arr[i], mtl)
+
+
+
+
+

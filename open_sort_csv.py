@@ -9,6 +9,7 @@ import pandas as pd
 from utilities import getMTL
 import datetime
 from comparison import *
+from MODIS import check_point
 import numpy as np
 
 
@@ -24,6 +25,11 @@ def Max_Min_Lat_Lon(mtl):
     LR_LAT = float(data['CORNER_LR_LAT_PRODUCT'])
     LR_LON = float(data['CORNER_LR_LON_PRODUCT'])
     
+    UL = (UL_LAT, UL_LON)
+    LL = (LL_LAT, LL_LON)
+    UR = (UR_LAT, UR_LON)
+    LR = (LR_LAT, LR_LON)
+    
     Max_lat = max(UL_LAT,UR_LAT,LL_LAT,LR_LAT)
     Min_lat = min(UL_LAT,UR_LAT,LL_LAT,LR_LAT)
     Max_lon = max(UL_LON,UR_LON,LL_LON,LR_LON)
@@ -31,7 +37,7 @@ def Max_Min_Lat_Lon(mtl):
     
     return (Max_lat, Min_lat, Max_lon, Min_lon)
 
-def FIRMS_coordinates(FIRMS, mtl, info):
+def FIRMS_coordinates(folder, FIRMS, mtl, info):
     
     df = pd.read_csv(FIRMS, sep=',')
     
@@ -63,12 +69,24 @@ def FIRMS_coordinates(FIRMS, mtl, info):
     arr_lon  = np.array(df_sort['longitude'])
     arr_conf = np.array(df_sort['confidence'])
     arr = []
+    lat = []
+    lon = []
+    
 
     for i in range(arr_lat.shape[0]):
-        arr.append((arr_lat[i], arr_lon[i], arr_conf[i]))
+        if check_point(mtl, (arr_lat[i], arr_lon[i])) == True:
+            arr.append((arr_lat[i], arr_lon[i], arr_conf[i]))
+            lat.append(arr_lat[i])
+            lon.append(arr_lon[i])
+            
+    lat = np.array(lat)
+    lon = np.array(lon)
+    
+    np.save(folder+'\latarr_Firms_'+info, lat)
+    np.save(folder+'\lonarr_Firms_'+info, lon)     
         
     print()
     print('FIRMS')    
-    print(arr)
+    # print(arr)
     print()
     return arr

@@ -29,35 +29,48 @@ def Main(X, filepath, FIRMS, mtl, path_res):
      
     # k_alg = detectFire(path_res, X)
     # FromMaskToCoords(path_res, X, firemask, mtl)
-    Coordinates_gdal(path_res, X)
+    # Coordinates_gdal(path_res, X)
     # print(k_alg, 'FIRE PIXELS')
-    lat = np.load(path_res + r'\latarr_'+X+'.npy')
-    k_alg = lat.shape[0]
+    # lat = np.load(path_res + r'\latarr_gdal_'+X+'.npy')
+    # k_alg = lat.shape[0]
 ##
-# #    
-    GT   = FIRMS_coordinates(path_res + FIRMS, mtl, X)
-    np.save(path_res + r'/Firms_'+X, GT)
-    print('Firms coordinates done')
+# # #    
+    # GT   = FIRMS_coordinates(path_res, path_res + FIRMS, mtl, X)
+    # np.save(path_res + r'/Firms_'+X, GT)
+    # print('Firms coordinates done')
+    # print(GT)
+    # firms = len(GT)
     
-    Test = Lists_coordinates(path_res, 'gdal_' + X)
-    np.save(path_res + r'/Algrorithm_'+X, Test)
-    print('Algrorithm coordinates done')
-# #    
-    Points_match = compare_coordinates_lists_km(GT, Test, E_diff)
-    np.save(path_res + r'/Points_match_'+X, Points_match)
-    print('Points match coordinates done') 
     
-    k_unsure, k_med_conf, k_conf = Grouping_points_confident(Points_match, 40, 60)
-#    
-    Points = len(Points_match)
+    
+    # Test = Lists_coordinates(path_res, 'gdal_' + X)
+    # np.save(path_res + r'/Algrorithm_'+X, Test)
+    # print('Algrorithm coordinates done')
+# #    
+
+
+#     Points_match = compare_coordinates_lists_km(GT, Test, E_diff)
+#     np.save(path_res + r'/Points_match_'+X, Points_match)
+#     print('Points match coordinates done') 
+    
+#     print()
+#     print('СОВПАЛИ')
+#     print(Points_match)
+#     print()
+#     print(len(Points_match))
+    
+#     k_unsure, k_med_conf, k_conf = Grouping_points_confident(Points_match, 40, 60)
+# #    
+#     Points = len(Points_match)
+#     Create_RGB(path_res, X)
     
     Coord_To_Points_rgb(path_res, X, mtl)
     
     
-    Create_RGB(path_res, X)
-    Save_image_points(path_res, X)
     
-    return k_alg, firms, k_unsure, k_med_conf, k_conf
+    # Save_image_points(path_res, X)
+    
+    # return k_alg, firms, Points, k_unsure, k_med_conf, k_conf
         
 
     
